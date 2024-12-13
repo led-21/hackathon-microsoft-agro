@@ -1,5 +1,0 @@
-azure.ai.contentsafety
-azure-cognitiveservices-vision-customvision
-python-multipart
-pydantic
-fastapi
