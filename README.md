@@ -1,1 +1,1 @@
-# hackaton-microsoft-agro
+# hackathon-microsoft-agro
