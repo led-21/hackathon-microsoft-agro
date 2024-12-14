@@ -1,0 +1,9 @@
+@hackaton_microsoft_agro_HostAddress = https://localhost:7044
+
+### Classify Image
+POST {{hackaton_microsoft_agro_HostAddress}}/classify_image?url=link_img&description=Sample%20image%20description
+Content-Type: application/json
+
+### Classify HealthCheck
+GET {{hackaton_microsoft_agro_HostAddress}}/health
+
