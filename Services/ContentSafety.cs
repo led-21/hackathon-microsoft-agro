@@ -25,12 +25,12 @@ namespace hackaton_microsoft_agro.Services
                 if (text != null)
                 {
                     var request = new AnalyzeTextOptions(text);
-                    resultImage = IsInappropriateText(contentSafetyClient.AnalyzeText(request));
+                    resultText = IsInappropriateText(contentSafetyClient.AnalyzeText(request));
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine();
+                throw new Exception("Error ContentAnalyze -> " + ex.Message);
             }
 
             return resultImage || resultText;
@@ -38,12 +38,18 @@ namespace hackaton_microsoft_agro.Services
 
         bool IsInappropriateImage(Response<AnalyzeImageResult> response)
         {
-            return (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Hate)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.SelfHarm)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Sexual)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Violence)?.Severity > 0);
+            return (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Hate)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.SelfHarm)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Sexual)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == ImageCategory.Violence)?.Severity > 0);
         }
 
         bool IsInappropriateText(Response<AnalyzeTextResult> response)
         {
-            return (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Hate)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.SelfHarm)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Sexual)?.Severity > 0) || (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Violence)?.Severity > 0);
+            return (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Hate)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.SelfHarm)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Sexual)?.Severity > 0) ||
+            (response.Value.CategoriesAnalysis.FirstOrDefault(item => item.Category == TextCategory.Violence)?.Severity > 0);
         }
     }
 }
