@@ -41,7 +41,18 @@ builder.Services.AddSingleton<IOrchestrator, Orchestrator>(o => new Orchestrator
         builder.Configuration["custom-vision-iteration-name"]!))
 );
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
