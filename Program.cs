@@ -11,18 +11,29 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 
 // Add Orchestrator Service
-builder.Services.AddSingleton<IOrchestrator, Orchestrator>( o => new Orchestrator(
-    new ContentSafety(builder.Configuration["content_moderator:endpoint"]!, 
+builder.Services.AddSingleton<IOrchestrator, Orchestrator>(o => new Orchestrator(
+    new ContentSafety(builder.Configuration["content_moderator:endpoint"]!,
         builder.Configuration["content_moderator"]!),
 
     new CustomVision(
-        builder.Configuration["custom_vision:endpoint"]!, 
-        builder.Configuration["custom_vision:iteration_name"]!, 
-        new Guid(builder.Configuration["custom_vision:project_id"]!), 
+        builder.Configuration["custom_vision:endpoint"]!,
+        builder.Configuration["custom_vision:iteration_name"]!,
+        new Guid(builder.Configuration["custom_vision:project_id"]!),
         builder.Configuration["custom_vision:iteration_name"]!))
 );
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

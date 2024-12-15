@@ -13,7 +13,6 @@ namespace hackaton_microsoft_agro.Services
         {
             Endpoint = endpoint
         };
-
         public (string, double) AnalyseImage(byte[] image)
         {
             var predictions = new Dictionary<string, double>();

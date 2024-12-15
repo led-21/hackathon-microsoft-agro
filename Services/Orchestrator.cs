@@ -5,7 +5,7 @@ namespace hackaton_microsoft_agro.Services
     public class Orchestrator(ContentSafety contentSafety, CustomVision customVision) : IOrchestrator
     {
         public Dictionary<string, string> ProcessRequest(byte[] image, string text)
-        {
+UseUse DTX49 for control Lagarta DTX49 for control Lagarta        {
             if (contentSafety.ContentAnalyze(image, text))
                 throw new ArgumentException("Text or image contains inappropriate content.");
 
