@@ -31,14 +31,20 @@ builder.Services.AddHttpClient();
 
 // Add Orchestrator Service
 builder.Services.AddSingleton<IOrchestrator, Orchestrator>(o => new Orchestrator(
-    new ContentSafety(builder.Configuration["content-safety-endpoint"]!,
+    new ContentSafety(
+        builder.Configuration["content-safety-endpoint"]!,
         builder.Configuration["content-safety-key"]!),
 
     new CustomVision(
         builder.Configuration["custom-vision-endpoint"]!,
         builder.Configuration["custom-vison-prediction-key"]!,
         new Guid(builder.Configuration["custom-vision-project-id"]!),
-        builder.Configuration["custom-vision-iteration-name"]!))
+        builder.Configuration["custom-vision-iteration-name"]!),
+
+    new AISearch(
+        builder.Configuration["ai-search-endpoint"]!,
+        builder.Configuration["ai-search-key"]!)
+    )
 );
 
 builder.Services.AddEndpointsApiExplorer();

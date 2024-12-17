@@ -2,7 +2,7 @@
 
 namespace hackaton_microsoft_agro.Services
 {
-    public class Orchestrator(ContentSafety contentSafety, CustomVision customVision) : IOrchestrator
+    public class Orchestrator(ContentSafety contentSafety, CustomVision customVision, AISearch aISearch) : IOrchestrator
     {
         public Dictionary<string, string> ProcessRequest(byte[] image, string text)
         {
@@ -20,6 +20,8 @@ namespace hackaton_microsoft_agro.Services
             }
 
             var pestResult = confidence >= 0.8 ? pest : "Unidentified";
+
+            aISearch.Search(pestResult);
 
             return new Dictionary<string, string>() { ["praga"] = pestResult };
         }
