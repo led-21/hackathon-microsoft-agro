@@ -43,7 +43,12 @@ builder.Services.AddSingleton<IOrchestrator, Orchestrator>(o => new Orchestrator
 
     new AISearch(
         builder.Configuration["ai-search-endpoint"]!,
-        builder.Configuration["ai-search-key"]!)
+        builder.Configuration["ai-search-key"]!),
+
+     new OpenAIService(
+        builder.Configuration["openai-endpoint"]!,
+        builder.Configuration["openai-key"]!,
+        builder.Configuration["openai-deployment-name"]!)
     )
 );
 
