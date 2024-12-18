@@ -21,10 +21,8 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
-                    HttpClient client1 = new();
-                   
                     byte[] imageContent = await client.GetByteArrayAsync(url);
-                    var result = orchestrator.ProcessImageRequest(imageContent);
+                    var result = orchestrator.ProcessRequest(null, imageContent);
 
                     return Results.Ok(result);
                 }
@@ -48,7 +46,7 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
-                    var result = orchestrator.ProcessPestControlSuggestionRequest(pest);
+                    var result = orchestrator.ProcessRequest(pest);
 
                     return Results.Ok(result);
                 }
@@ -72,7 +70,7 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
-                    var result = orchestrator.ProcessQuestionRequest(question);
+                    var result = orchestrator.ProcessRequest(question);
                     return Results.Ok(result);
                 }
                 catch (ArgumentException ex)
@@ -85,29 +83,6 @@ namespace hackaton_microsoft_agro.Endpoints
                 }
             })
             .WithName("QuestionAboutCrops");
-
-
-            app.MapGet("/plan_crop_field", (string city, HttpClient client, IOrchestrator orchestrator) =>
-            {
-
-                if (string.IsNullOrEmpty(city))
-                    return Results.BadRequest("The 'crop' parameter is required.");
-
-                try
-                {
-                    var result = orchestrator.ProcessPlanCropFieldRequest(city);
-                    return Results.Ok(result);
-                }
-                catch (ArgumentException ex)
-                {
-                    return Results.BadRequest(ex.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.InternalServerError(e.Message);
-                }
-            })
-            .WithName("PlanCropField");
 
 
             app.MapGet("/get_registered_products", (CropProtectionContext database, string pest) =>

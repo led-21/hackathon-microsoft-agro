@@ -40,54 +40,5 @@ namespace hackaton_microsoft_agro.Services
             }
         }
 
-        public string ProcessResponseForPlanCropField(string query, string city, string sources)
-        {
-            string GROUNDED_PROMPT = $"""
-                                    You are a friendly assistant who assists agricultural professionals in planing crop field for soybeans.
-                                    Answer the query using the sources provided below in a friendly and detailed.
-                                    Do search in portugues and response in english.
-
-
-                                    Template:
-                                        Location: {city}
-                                        Planting date: 11/12/2025
-                                        Estimated emergence date:
-                                        Estimated harvest date:
-                                        Soyabem Cultivar:
-                                        Planting system: no-till.
-                                        Previous crop: millet + brachiaria
-                                        Row spacing: 45 cm
-                                        Maintenance fertilization:
-                                        Seed treatment:
-                                        Inoculant:
-                                        Micronutrients:
-                                        Insecticides:
-                                        Fungicides:
-
-                                    Query: {query}
-                                    Sources:\n{sources}
-
-
-                                    """;
-            try
-            {
-                var response = client.GetChatClient(deploymentName).CompleteChat(
-                    ChatMessage.CreateSystemMessage("Use system information for recomendations"),
-                    ChatMessage.CreateSystemMessage(SoyInformation.TEMPLATE),
-                    ChatMessage.CreateSystemMessage(SoyInformation.HERBICIDES),
-                    ChatMessage.CreateSystemMessage(SoyInformation.FUNGICIDES),
-                    ChatMessage.CreateSystemMessage(SoyInformation.INSETICIDES),
-                    ChatMessage.CreateSystemMessage(SoyInformation.SEEDS),
-                    ChatMessage.CreateSystemMessage(SoyInformation.SOIL_FERTILITY),
-                    ChatMessage.CreateUserMessage(GROUNDED_PROMPT)
-                    );
-                return response.Value.Content[0].Text;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error ProcessResponse -> " + ex.Message);
-            }
-        }
-
     }
 }
