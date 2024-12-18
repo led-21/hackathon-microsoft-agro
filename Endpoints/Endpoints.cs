@@ -38,6 +38,26 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImage");
 
 
+            app.MapPost("/classify_pest_file", async (byte[] imageContent, HttpClient client, IOrchestrator orchestrator) =>
+            {
+                try
+                {
+                    var result = orchestrator.ProcessRequest(text: null, image: imageContent);
+
+                    return Results.Ok(result);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+                catch (Exception e)
+                {
+                    return Results.InternalServerError(e.Message);
+                }
+            })
+            .WithName("ClassifyImageFile");
+
+
             app.MapGet("/control_insect_suggestion", (string pest, IOrchestrator orchestrator) =>
             {
 

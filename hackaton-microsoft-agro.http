@@ -1,5 +1,6 @@
 @hackaton_microsoft_agro_HostAddress = https://localhost:7044
 
+
 ### Classify HealthCheck
 GET {{hackaton_microsoft_agro_HostAddress}}/health
 
