@@ -22,7 +22,7 @@ namespace hackaton_microsoft_agro.Endpoints
                 try
                 {
                     byte[] imageContent = await client.GetByteArrayAsync(url);
-                    var result = orchestrator.ProcessRequest(null, imageContent);
+                    var result = orchestrator.ProcessRequest(text: null, image: imageContent);
 
                     return Results.Ok(result);
                 }
@@ -46,7 +46,7 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
-                    var result = orchestrator.ProcessRequest(pest);
+                    var result = orchestrator.ProcessRequest(text: "Suggest control to " + pest);
 
                     return Results.Ok(result);
                 }
@@ -70,7 +70,7 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
-                    var result = orchestrator.ProcessRequest(question);
+                    var result = orchestrator.ProcessRequest(text: question);
                     return Results.Ok(result);
                 }
                 catch (ArgumentException ex)
@@ -82,7 +82,7 @@ namespace hackaton_microsoft_agro.Endpoints
                     return Results.InternalServerError(e.Message);
                 }
             })
-            .WithName("QuestionAboutCrops");
+            .WithName("Question");
 
 
             app.MapGet("/get_registered_products", (CropProtectionContext database, string pest) =>

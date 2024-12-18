@@ -8,7 +8,13 @@ namespace hackaton_microsoft_agro.Services
     {
         ContentSafetyClient contentSafetyClient = new ContentSafetyClient(new Uri(endpoint), new AzureKeyCredential(key));
 
-        public bool ContentAnalyze(byte[]? image, string? text)
+        public void ValidateContent(byte[]? image, string? text)
+        {
+            if (ContentAnalyze(image, text))
+                throw new ArgumentException("Text or image contains inappropriate content.");
+        }
+
+        private bool ContentAnalyze(byte[]? image, string? text)
         {
             bool resultImage = false;
             bool resultText = false;

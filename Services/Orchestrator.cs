@@ -17,55 +17,49 @@ namespace hackaton_microsoft_agro.Services
 
         public Dictionary<string, string> ProcessRequest(string? text, byte[]? image)
         {
-
-            ValidateContent(image, text);
-
-            if (contentSafety.ContentAnalyze(image, text))
-                throw new ArgumentException("Text or image contains inappropriate content.");
-
             string query;
-            string? pestResult = null;
+            string? pestClassification = null;
 
-            if (image != null)
+            contentSafety.ValidateContent(image, text);
+
+            if (text == null)
             {
-                var (pest, confidence) = AnalyseImage(image);
-                pestResult = confidence >= 0.75 ? pest : "Unidentified";
-                query = $"Suggest control for {pest}";
+                (pestClassification, query) = AnalyseImage(image);
+
+                if (string.IsNullOrEmpty(query))
+                    return CreateResponse(pestClassification, "Unidentified pest");
             }
             else
             {
-                query = $"Suggest control for {text}";
-                pestResult = text;
+                query = text;
             }
 
-            var response = GetAISearchResponse(query, query);
+            var response = GetAISearchResponse(query);
 
-            return CreateResponse(pestResult, response);
+            return CreateResponse(pestClassification, response);
         }
 
-
-        private void ValidateContent(byte[]? image, string? text)
+        public (string pest, string query) AnalyseImage(byte[]? image)
         {
-            if (contentSafety.ContentAnalyze(image, text))
-            {
-                throw new ArgumentException("Text or image contains inappropriate content.");
-            }
+            string query = "";
+
+            if (image == null)
+                throw new ArgumentException("Image data is invalid.");
+
+            (string pest, double confidence) = customVision.AnalyseImageContent(image);
+
+            if (confidence >= 0.75)
+                query = $"Suggest control for {pest}";
+            else
+                pest = "Unidentified";
+
+            return (pest: pest, query: query);
         }
 
-        private string GetAISearchResponse(string context, string query)
+        private string GetAISearchResponse(string query)
         {
             var searchResults = aISearch.Search(query, 5);
-            return openAI.ProcessResponse(context, string.Join(" ", searchResults));
-        }
-
-        private (string pest, double confidence) AnalyseImage(byte[] image)
-        {
-            if (image == null)
-            {
-                return ("Unidentified", 0);
-            }
-
-            return customVision.AnalyseImage(image);
+            return openAI.ProcessResponse(query, string.Join(" ", searchResults));
         }
 
         private Dictionary<string, string> CreateResponse(string? pestResult, string response)
