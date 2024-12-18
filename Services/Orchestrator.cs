@@ -35,7 +35,7 @@ namespace hackaton_microsoft_agro.Services
 
             return new Dictionary<string, string>()
             {
-                ["pestClassification:"] = pestResult??"Não classificado",
+                ["pestClassification"] = pestResult??"Não classificado",
                 ["result"] = response,
                 ["observation"] = OBSERVATION
             };
@@ -64,9 +64,7 @@ namespace hackaton_microsoft_agro.Services
             if (contentSafety.ContentAnalyze(null, text))
                 throw new ArgumentException("Text or image contains inappropriate content.");
 
-            (string? pest, double confidence) = (null, 0);
-
-            List<string> searchResults = aISearch.Search(text, 5);
+            List<string> searchResults = aISearch.Search(text, 0);
 
             var response = openAI.ProcessResponse(text, string.Join(" ", searchResults));
 

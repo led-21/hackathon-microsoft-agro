@@ -21,6 +21,8 @@ namespace hackaton_microsoft_agro.Endpoints
 
                 try
                 {
+                    HttpClient client1 = new();
+                   
                     byte[] imageContent = await client.GetByteArrayAsync(url);
                     var result = orchestrator.ProcessImageRequest(imageContent);
 
@@ -38,7 +40,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImage");
 
 
-            app.MapPost("/control_insect_suggestion", (string pest, IOrchestrator orchestrator) =>
+            app.MapGet("/control_insect_suggestion", (string pest, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(pest))
@@ -62,7 +64,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ControlInsectSuggestion");
 
 
-            app.MapPost("/question", (string question, HttpClient client, IOrchestrator orchestrator) =>
+            app.MapGet("/question", (string question, HttpClient client, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(question))
@@ -85,7 +87,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("QuestionAboutCrops");
 
 
-            app.MapPost("/plan_crop_field", (string city, HttpClient client, IOrchestrator orchestrator) =>
+            app.MapGet("/plan_crop_field", (string city, HttpClient client, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(city))
@@ -111,7 +113,7 @@ namespace hackaton_microsoft_agro.Endpoints
             app.MapGet("/get_registered_products", (CropProtectionContext database, string pest) =>
             {
                 return database.Products
-                         .Where(x => x.PestCommonName.Contains(pest))
+                         .Where(x => x.PestCommonName.ToUpper().Contains(pest.ToUpper()))
                          .Select(c => new CropProtectionDto
                          (
                              c.Id,

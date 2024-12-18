@@ -12,6 +12,8 @@ namespace hackaton_microsoft_agro.Services
 
         public List<string> Search(string searchText, int size = 5)
         {
+            HttpClient httpClient = new HttpClient();
+
             try
             {
                 var options = new SearchOptions
