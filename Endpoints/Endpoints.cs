@@ -1,9 +1,7 @@
 ﻿using hackaton_microsoft_agro.Data;
 using hackaton_microsoft_agro.Interface;
-using hackaton_microsoft_agro.Services;
-using Microsoft.AspNetCore.Builder;
-using System;
-using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Antiforgery;
+using System.IO;
 
 namespace hackaton_microsoft_agro.Endpoints
 {
@@ -38,13 +36,19 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImage");
 
 
-            app.MapPost("/classify_pest_file", async (byte[] imageContent, HttpClient client, IOrchestrator orchestrator) =>
+            app.MapPost("/classify_pest_file", async(IFormFile file,IOrchestrator orchestrator) =>
             {
                 try
                 {
-                    var result = orchestrator.ProcessRequest(text: null, image: imageContent);
+                    if (file == null || file.Length == 0 || !file.ContentType.StartsWith("image"))
+                        return Results.BadRequest("No file uploaded or incorrect format.");
 
-                    return Results.Ok(result);
+                    using (var stream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(stream); 
+                        var result = orchestrator.ProcessRequest(text: null, image: stream.ToArray());
+                        return Results.Ok(result);
+                    }
                 }
                 catch (ArgumentException ex)
                 {
@@ -55,7 +59,8 @@ namespace hackaton_microsoft_agro.Endpoints
                     return Results.InternalServerError(e.Message);
                 }
             })
-            .WithName("ClassifyImageFile");
+            .WithName("ClassifyImageFile")
+            .DisableAntiforgery();
 
 
             app.MapGet("/control_insect_suggestion", (string pest, IOrchestrator orchestrator) =>

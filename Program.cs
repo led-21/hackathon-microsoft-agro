@@ -4,6 +4,8 @@ using hackaton_microsoft_agro.Endpoints;
 using hackaton_microsoft_agro.Interface;
 using hackaton_microsoft_agro.Models;
 using hackaton_microsoft_agro.Services;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.OpenApi.Models;
 using System.Formats.Asn1;
 using System.Globalization;
 
@@ -73,7 +75,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
         });
 });
-
 
 var app = builder.Build();
 
