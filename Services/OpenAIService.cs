@@ -65,7 +65,9 @@ namespace hackaton_microsoft_agro.Services
                                     """;
             try
             {
-                var response = client.GetChatClient(deploymentName).CompleteChat(ChatMessage.CreateUserMessage(GROUNDED_PROMPT));
+                var response = client.GetChatClient(deploymentName).CompleteChat(
+                    ChatMessage.CreateUserMessage(GROUNDED_PROMPT)
+                    );
                 return response.Value.Content[0].Text;
             }
             catch (Exception ex)

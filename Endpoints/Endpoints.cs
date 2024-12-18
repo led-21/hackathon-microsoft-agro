@@ -38,7 +38,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImage");
 
 
-            app.MapPost("/control_insect_suggestion", async (string pest, IOrchestrator orchestrator) =>
+            app.MapPost("/control_insect_suggestion", (string pest, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(pest))
@@ -62,7 +62,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ControlInsectSuggestion");
 
 
-            app.MapPost("/question", async (string question, HttpClient client, IOrchestrator orchestrator) =>
+            app.MapPost("/question", (string question, HttpClient client, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(question))
@@ -85,7 +85,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("QuestionAboutCrops");
 
 
-            app.MapPost("/plan_crop_field", async (string city, HttpClient client, IOrchestrator orchestrator) =>
+            app.MapPost("/plan_crop_field", (string city, HttpClient client, IOrchestrator orchestrator) =>
             {
 
                 if (string.IsNullOrEmpty(city))

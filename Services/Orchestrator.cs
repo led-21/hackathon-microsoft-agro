@@ -35,7 +35,7 @@ namespace hackaton_microsoft_agro.Services
 
             return new Dictionary<string, string>()
             {
-                ["pestClassification:"] = pestResult,
+                ["pestClassification:"] = pestResult??"Não classificado",
                 ["result"] = response,
                 ["observation"] = OBSERVATION
             };
