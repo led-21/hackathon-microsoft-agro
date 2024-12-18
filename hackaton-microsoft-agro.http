@@ -1,7 +1,7 @@
 @hackaton_microsoft_agro_HostAddress = https://localhost:7044
 
 ### Classify Image
-POST {{hackaton_microsoft_agro_HostAddress}}/classify_image?url=https://th.bing.com/th?id=OSK.HEROGfsbV9xOjRLvLt5OQNPfAgDtYeyljAycAuXYQlfHR3E&w=472&h=280&c=1&rs=2&o=6&dpr=1.5&pid=SANGAM&description=Sample%20image%20description
+POST {{hackaton_microsoft_agro_HostAddress}}/classify_pest?url=https://bugwoodcloud.org/images/1536x1024/1453261.jpg
 Content-Type: application/json
 
 ### Classify HealthCheck

@@ -1,6 +1,11 @@
 using Azure.Identity;
+using hackaton_microsoft_agro.Data;
+using hackaton_microsoft_agro.Endpoints;
 using hackaton_microsoft_agro.Interface;
+using hackaton_microsoft_agro.Models;
 using hackaton_microsoft_agro.Services;
+using System.Formats.Asn1;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +26,9 @@ var uri = string.IsNullOrEmpty(keyVaultUri)
     ? throw new InvalidOperationException("KeyVault URI is not configured.")
     : new Uri(keyVaultUri);
 builder.Configuration.AddAzureKeyVault(uri, credential);
+
+// Add database
+builder.Services.AddDbContext<CropProtectionContext>();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -73,32 +81,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/health", () => new Dictionary<string, string> { ["status"] = "up" })
-    .WithName("HealthCheck");
-
-app.MapPost("/classify_image", async (string url, string description, HttpClient client, IOrchestrator orchestrator) =>
-{
-
-    if (string.IsNullOrEmpty(url))
-        return Results.BadRequest("The 'url' parameter is required.");
-
-    try
-    {
-        byte[] imageContent = await client.GetByteArrayAsync(url);
-        var result = orchestrator.ProcessRequest(imageContent, description);
-
-        return Results.Ok(result);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
-    catch (Exception e)
-    {
-        return Results.InternalServerError(e.Message);
-    }
-})
-.WithName("ClassifyImage");
+app.AddMyEndpoints();
 
 app.Run();
+
+
 

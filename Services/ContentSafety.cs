@@ -7,9 +7,8 @@ namespace hackaton_microsoft_agro.Services
     public class ContentSafety(string endpoint, string key)
     {
         ContentSafetyClient contentSafetyClient = new ContentSafetyClient(new Uri(endpoint), new AzureKeyCredential(key));
-        BlocklistClient blocklistClient = new BlocklistClient(new Uri(endpoint), new AzureKeyCredential(key));
 
-        public bool ContentAnalyze(byte[] image, string text)
+        public bool ContentAnalyze(byte[]? image, string? text)
         {
             bool resultImage = false;
             bool resultText = false;
