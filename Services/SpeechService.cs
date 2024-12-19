@@ -7,7 +7,7 @@ namespace hackaton_microsoft_agro.Services
     {
         SpeechConfig config = SpeechConfig.FromSubscription(apiKey, region);
 
-        public string SpeechToText(byte[] audio)
+        public async Task<string> SpeechToText(byte[] audio)
         {
             try
             {
@@ -18,16 +18,30 @@ namespace hackaton_microsoft_agro.Services
                 config.SpeechRecognitionLanguage = "en-US";
                 using var recognizer = new SpeechRecognizer(config, audioConfig);
 
-                var result = recognizer.RecognizeOnceAsync().Result;
-                return result.Text;
+                var result = await recognizer.RecognizeOnceAsync();
 
+                if (result.Reason == ResultReason.RecognizedSpeech)
+                {
+                    return result.Text;
+                }
+                else if (result.Reason == ResultReason.NoMatch)
+                {
+                    return "No speech could be recognized.";
+                }
+                else if (result.Reason == ResultReason.Canceled)
+                {
+                    var cancellation = CancellationDetails.FromResult(result);
+                    return $"CANCELED: Reason={cancellation.Reason}";
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Speech recognition failed: {result.Reason}");
+                }
             }
             catch (Exception ex)
             {
-
                 throw new ArgumentException("Error processing the audio file -> SpeechToText: " + ex.Message);
             }
-
         }
     }
 }
