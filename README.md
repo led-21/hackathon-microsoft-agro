@@ -7,7 +7,7 @@ The application implements several jobs related to agriculture planning based on
 The main goal is to (i) reduce the use of pesticides with increased efficiency and (ii) give to the farmer information to create agriculture planning and reports for the government and to use it on investment search.
 
 ## Solution Architecture
-
+![Azure Services Architecture](Azure-Services-Architecture.png)
 #### User and User Interface (UI):
 - The user interacts with the user interface (UI) written in Python.
 
