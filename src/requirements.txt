@@ -1,3 +1,4 @@
+azure-cognitiveservices-speech
 streamlit-mic-recorder
 sentence_transformers
 InstructorEmbedding

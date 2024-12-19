@@ -14,16 +14,19 @@ from html_templates import get_bot_template, get_user_template, css
 #from image_handler import handle_image
 #from pdf_handler import add_documents_to_db
 
+from speech import recognize_speech_from_file
+
+
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 BASE_URL = "http://localhost:5080"
 
-def load_chain(chat_history):
-    if st.session_state.pdf_chat:
-        print("loading pdf chat chain")
-        return load_pdf_chat_chain(chat_history)
-    return load_normal_chain(chat_history)
+# def load_chain(chat_history):
+#     if st.session_state.pdf_chat:
+#         print("loading pdf chat chain")
+#         return load_pdf_chat_chain(chat_history)
+#     return load_normal_chain(chat_history)
 
 def clear_input_field():
     if st.session_state.user_question == "":
@@ -128,36 +131,61 @@ def main():
 
     speech = st.sidebar.audio_input("Record a question with your microphone.", key="speech", on_change= process_speech)
 
-    uploaded_audio = st.sidebar.file_uploader("Upload an audio file with your questions.", type= ["wav", "mp3", "ogg"])
+    uploaded_audio = st.sidebar.file_uploader("Upload an audio file with your questions.", type= ["wav", "mp3"])
     uploaded_image = st.sidebar.file_uploader("Upload an image file with a pest to identify.", type= ["jpg", "jpeg", "png"])
 
  
     # If there is a uploaded audio file, transcribe it and send it to the endpoint
     # to process the question.
     if uploaded_audio:
-        transcribed_audio = transcribe_audio_from_file(uploaded_audio.getvalue())
-        print(transcribed_audio)
+        if uploaded_audio.type == "audio/wav":
+            with open("uploaded_audio.wav", "wb") as f:
+                f.write(uploaded_audio.getvalue())
+            
+            transcribed_audio = recognize_speech_from_file("uploaded_audio.wav")
+            os.remove("uploaded_audio.wav")
+        elif uploaded_audio.type == "audio/mp3":
+            with open("uploaded_audio.mp3", "wb") as f:
+                f.write(uploaded_audio.getvalue())
+            
+            transcribed_audio = recognize_speech_from_file("uploaded_audio.mp3")
+            os.remove("uploaded_audio.mp3")
 
         # Calls the endpoint to process the question
         response = requests.get(f"{BASE_URL}/question", params={"question": transcribed_audio})
         if (response.status_code == 200):
             llm_answer = response.json()
             chat_history.add_user_message(transcribed_audio)
-            chat_history.add_ai_message(llm_answer)
+            chat_history.add_ai_message(llm_answer['result'])
+            chat_history.add_ai_message(llm_answer['observation'])
 
 
     # If there is a voice recording, transcribe it and send it to the endpoint
     # to process the question.
     if speech:
-        transcribed_audio = transcribe_audio_from_stream(speech["bytes"])
-        print(transcribed_audio)
-
+        print(speech)
+        if speech.type == "audio/wav":
+            with open(speech.name, "wb") as f:
+                f.write(speech.getvalue())
+            
+            transcribed_audio = recognize_speech_from_file(speech.name)
+            os.remove(speech.name)
+        elif speech.type == "audio/mp3":
+            with open(speech.name, "wb") as f:
+                f.write(speech.getvalue())
+            
+            transcribed_audio = recognize_speech_from_file(speech.name)
+            os.remove(speech.name)
+        
         # Calls the endpoint to process the question
         response = requests.get(f"{BASE_URL}/question", params={"question": transcribed_audio})
         if (response.status_code == 200):
             llm_answer = response.json()
             chat_history.add_user_message(transcribed_audio)
-            chat_history.add_ai_message(llm_answer)
+            chat_history.add_ai_message(llm_answer['result'])
+            chat_history.add_ai_message(llm_answer['observation'])
+
+        
     
     if uploaded_image:
         with st.spinner("Processing image..."):
@@ -181,6 +209,7 @@ def main():
                 llm_answer = response.json()
                 chat_history.add_user_message(st.session_state.user_question)
                 chat_history.add_ai_message(llm_answer['result'])
+                chat_history.add_ai_message(llm_answer['observation'])
 
             st.session_state.user_question = ""
         
