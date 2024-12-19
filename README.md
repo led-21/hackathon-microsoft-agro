@@ -8,34 +8,34 @@ The main goal is to (i) reduce the use of pesticides with increased efficiency a
 
 ## Solution Architecture
 
-### User and User Interface (UI):
+#### User and User Interface (UI):
 - The user interacts with the user interface (UI) written in Python.
 
-### Backend C#:
+#### Backend C#:
 - The UI communicates with the backend developed in C#, which manages business logic and integration with other Azure services.
 
-### Azure Key Vault:
+#### Azure Key Vault:
 - The backend uses secrets stored in Azure Key Vault to securely access other Azure services.
 
-### Azure Speech Service:
+#### Azure Speech Service:
 - The Azure Speech Service can be used to convert audio to text, if necessary.
 
-### Azure Content Safety:
+#### Azure Content Safety:
 - The content of the request is validated by Azure Content Safety to ensure there is no inappropriate content.
 
-### Azure Custom Vision:
+#### Azure Custom Vision:
 - The backend sends the pest image to Azure Custom Vision, which identifies the pest in the image.
 
-### Azure SQL:
+#### Azure SQL:
 - The backend queries the database of products registered with the Ministry of Agriculture and Livestock to obtain information about pesticides for specific crops and pests.
 
-### Azure AI Search:
+#### Azure AI Search:
 - Documents are stored in a storage account and indexed by Azure AI Search to facilitate the retrieval of relevant information.
 
-### OpenAI:
+#### OpenAI:
 - The OpenAI service receives information about the pest and the pesticide and prepares a detailed response explaining which pest was detected and recommending details about the use of the pesticide.
 
-## Document Storage:
+#### Document Storage:
 - Documents are stored in a storage account containing Blob Storage and are used by Azure AI Search.
 
 
