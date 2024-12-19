@@ -35,7 +35,7 @@ Our proposal is to build a solution that showcases the potential of AI search in
 | Implement an Azure Document Intelligence model to collect data on research reports. | Implement an Azure Document Intelligence model to collect data on historical documents. | Insert more images in the Azure Vision training dataset on healthy and ill species. |
 | Implement a language model to answer questions about agricultural planning based on information of crops, infestations, etc. given by the user. | Implement prompt engineering to limit the scope of the model based on images loaded and classified by the application.| |
 | Include a RAG to the language model to incorporate information from recent research on pesticide efficiency. | Include a RAG to the language model to incorporate information from historical documents on pesticide efficiency. | |
-| Implement a front-end interface for the application. | | |
+| Implement a front-end interface for the application and improve the backend. | | |
 
 
 
