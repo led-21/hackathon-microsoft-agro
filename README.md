@@ -6,6 +6,39 @@ The application implements several jobs related to agriculture planning based on
 
 The main goal is to (i) reduce the use of pesticides with increased efficiency and (ii) give to the farmer information to create agriculture planning and reports for the government and to use it on investment search.
 
+## Solution Architecture
+
+### User and User Interface (UI):
+- The user interacts with the user interface (UI) written in Python.
+
+### Backend C#:
+- The UI communicates with the backend developed in C#, which manages business logic and integration with other Azure services.
+
+### Azure Key Vault:
+- The backend uses secrets stored in Azure Key Vault to securely access other Azure services.
+
+### Azure Speech Service:
+- The Azure Speech Service can be used to convert audio to text, if necessary.
+
+### Azure Content Safety:
+- The content of the request is validated by Azure Content Safety to ensure there is no inappropriate content.
+
+### Azure Custom Vision:
+- The backend sends the pest image to Azure Custom Vision, which identifies the pest in the image.
+
+### Azure SQL:
+- The backend queries the database of products registered with the Ministry of Agriculture and Livestock to obtain information about pesticides for specific crops and pests.
+
+### Azure AI Search:
+- Documents are stored in a storage account and indexed by Azure AI Search to facilitate the retrieval of relevant information.
+
+### OpenAI:
+- The OpenAI service receives information about the pest and the pesticide and prepares a detailed response explaining which pest was detected and recommending details about the use of the pesticide.
+
+## Document Storage:
+- Documents are stored in a storage account containing Blob Storage and are used by Azure AI Search.
+
+
 ## Opportunity statement
 
 The Brazilian agribusiness GDP in 2024 is projected to reach R$2.50 trillion ($415 billion), with R$1.74 trillion ($290 billion) coming from the agricultural sector and R$759.82 billion from the livestock sector. According to the Brazilian Confederation of Agriculture and Livestock (CNA), the share of agribusiness in Brazilian GDP in 2024 is estimated at 21.8%. The importance of agribusiness in the Brazilian economy is an opportunity for studies and implementation of applications that can upgrade productivity.
