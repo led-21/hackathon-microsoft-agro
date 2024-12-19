@@ -1,5 +1,6 @@
 ﻿using hackaton_microsoft_agro.Data;
 using hackaton_microsoft_agro.Interface;
+using hackaton_microsoft_agro.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using System.IO;
 
@@ -36,7 +37,7 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImage");
 
 
-            app.MapPost("/classify_pest_file", async(IFormFile file,IOrchestrator orchestrator) =>
+            app.MapPost("/classify_pest_file", async (IFormFile file, IOrchestrator orchestrator) =>
             {
                 try
                 {
@@ -45,7 +46,7 @@ namespace hackaton_microsoft_agro.Endpoints
 
                     using (var stream = new MemoryStream())
                     {
-                        await file.CopyToAsync(stream); 
+                        await file.CopyToAsync(stream);
                         var result = orchestrator.ProcessRequest(text: null, image: stream.ToArray());
                         return Results.Ok(result);
                     }
@@ -60,6 +61,31 @@ namespace hackaton_microsoft_agro.Endpoints
                 }
             })
             .WithName("ClassifyImageFile")
+            .DisableAntiforgery();
+
+            app.MapPost("/speech_to_text", async (SpeechToTextRequest file, SpeechService speechService) =>
+            {
+                try
+                {
+                    if (file == null || file.audioBase64.Length == 0)
+                        return Results.BadRequest("No file uploaded or incorrect format.");
+
+                    using (var stream = new MemoryStream())
+                    {
+                        var result = await Task.Run(() => speechService.SpeechToText(file.audioBase64));
+                        return Results.Ok(new SpeechToTextResponse(result));
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+                catch (Exception e)
+                {
+                    return Results.InternalServerError(e.Message);
+                }
+            })
+            .WithName("SpeechToText")
             .DisableAntiforgery();
 
 
@@ -132,4 +158,6 @@ namespace hackaton_microsoft_agro.Endpoints
     }
 
     record CropProtectionDto(int Id, string RegistrationNumber, string CommercialBrand, string Class, string Crop, string PestScientificName, string PestCommonName);
+    record SpeechToTextRequest(byte[] audioBase64);
+    record SpeechToTextResponse(string Text);
 }

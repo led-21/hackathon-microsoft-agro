@@ -62,6 +62,11 @@ builder.Services.AddSingleton<IOrchestrator, Orchestrator>(o => new Orchestrator
     )
 );
 
+builder.Services.AddSingleton<SpeechService>(s => new SpeechService(
+    builder.Configuration["speech-key"]!,
+    builder.Configuration["Region"]!
+));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
