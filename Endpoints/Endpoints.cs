@@ -63,16 +63,17 @@ namespace hackaton_microsoft_agro.Endpoints
             .WithName("ClassifyImageFile")
             .DisableAntiforgery();
 
-            app.MapPost("/speech_to_text", async (SpeechToTextRequest file, SpeechService speechService) =>
+            app.MapPost("/speech_to_text", async (IFormFile file, SpeechService speechService) =>
             {
                 try
                 {
-                    if (file == null || file.audioBase64.Length == 0)
+                    if (file == null || file.Length == 0)
                         return Results.BadRequest("No file uploaded or incorrect format.");
 
                     using (var stream = new MemoryStream())
                     {
-                        var result = await Task.Run(() => speechService.SpeechToText(file.audioBase64));
+                        await file.CopyToAsync(stream);
+                        var result = await Task.Run(() => speechService.SpeechToText(stream.ToArray()));
                         return Results.Ok(new SpeechToTextResponse(result));
                     }
                 }
@@ -158,6 +159,6 @@ namespace hackaton_microsoft_agro.Endpoints
     }
 
     record CropProtectionDto(int Id, string RegistrationNumber, string CommercialBrand, string Class, string Crop, string PestScientificName, string PestCommonName);
-    record SpeechToTextRequest(byte[] audioBase64);
+    record SpeechToTextRequest(IFormFile file);
     record SpeechToTextResponse(string Text);
 }
