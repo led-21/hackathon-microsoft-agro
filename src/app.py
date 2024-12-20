@@ -10,23 +10,13 @@ from streamlit_mic_recorder import mic_recorder
 from utils import save_chat_history_json, get_timestamp, load_chat_history_json
 from html_templates import get_bot_template, get_user_template, css
 
-#from audio_handler import transcribe_audio_from_url, transcribe_audio_from_stream
-#from image_handler import handle_image
-#from pdf_handler import add_documents_to_db
-
 from speech import recognize_speech_from_file
+from api_client import ApiClient
 
 
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
-BASE_URL = "http://localhost:5080"
-
-# def load_chain(chat_history):
-#     if st.session_state.pdf_chat:
-#         print("loading pdf chat chain")
-#         return load_pdf_chat_chain(chat_history)
-#     return load_normal_chain(chat_history)
 
 def clear_input_field():
     if st.session_state.user_question == "":
@@ -46,10 +36,10 @@ def set_send_url():
     st.session_state.send_url = True
     clear_url_field()
 
+
 def process_speech():
-    #st.session_state.user_question = st.session_state.speech
     print("processing speech")
-    pass
+
 
 def toggle_pdf_chat():
     st.session_state.pdf_chat = True
@@ -62,11 +52,6 @@ def save_chat_history():
         else:
             save_chat_history_json(st.session_state.history, config["chat_history_path"] + st.session_state.session_key)
 
-
-def send_file_to_api(file_content, api_url):
-    files = {'file': ('filename', file_content, 'application/octet-stream')}
-    response = requests.post(api_url, files=files)
-    return response
 
 def main():
     # Store initial states of widgets
@@ -97,7 +82,7 @@ def main():
 
     st.title("AI Search for Agricultural Planning and Control in Brazil")
     st.write(css, unsafe_allow_html=True)
-    chat_container = st.container()
+    
     st.sidebar.title("Chat Sessions")
     chat_sessions = ["new_session"] + os.listdir(config["chat_history_path"])
    
@@ -117,7 +102,7 @@ def main():
     chat_history = StreamlitChatMessageHistory(key="history")
     
     placeholder = st.empty()
-    user_input = placeholder.text_area(st.session_state.user_input_caption, key="user_input", on_change= set_send_input)
+    placeholder.text_area(st.session_state.user_input_caption, key="user_input", on_change= set_send_input)
 
     url_toggle_column, send_button_column = st.columns(2)
     with url_toggle_column:
@@ -127,10 +112,15 @@ def main():
         send_button = st.button("Send", key= "send_button", on_click= clear_input_field)
 
     if url_toggle:
-        user_input = placeholder.text_area("Type the URL of the image file here.", key="user_url", on_change= set_send_url)
+        placeholder.text_area("Type the URL of the image file here.", key="user_url", on_change= set_send_url)
 
+    # Placeholder for images, tables, etc.
+    info_placeholder = st.empty()
+
+    # Placeholder for the chat history.
+    chat_container = st.container()
+    
     speech = st.sidebar.audio_input("Record a question with your microphone.", key="speech", on_change= process_speech)
-
     uploaded_audio = st.sidebar.file_uploader("Upload an audio file with your questions.", type= ["wav", "mp3"])
     uploaded_image = st.sidebar.file_uploader("Upload an image file with a pest to identify.", type= ["jpg", "jpeg", "png"])
 
@@ -138,61 +128,44 @@ def main():
     # If there is a uploaded audio file, transcribe it and send it to the endpoint
     # to process the question.
     if uploaded_audio:
-        if uploaded_audio.type == "audio/wav":
-            with open("uploaded_audio.wav", "wb") as f:
-                f.write(uploaded_audio.getvalue())
-            
-            transcribed_audio = recognize_speech_from_file("uploaded_audio.wav")
-            os.remove("uploaded_audio.wav")
-        elif uploaded_audio.type == "audio/mp3":
-            with open("uploaded_audio.mp3", "wb") as f:
-                f.write(uploaded_audio.getvalue())
-            
-            transcribed_audio = recognize_speech_from_file("uploaded_audio.mp3")
-            os.remove("uploaded_audio.mp3")
-
-        # Calls the endpoint to process the question
-        response = requests.get(f"{BASE_URL}/question", params={"question": transcribed_audio})
-        if (response.status_code == 200):
-            llm_answer = response.json()
-            chat_history.add_user_message(transcribed_audio)
-            chat_history.add_ai_message(llm_answer['result'])
-            chat_history.add_ai_message(llm_answer['observation'])
+        transcribed_audio = ApiClient.transcribe_audio_file(uploaded_audio.name, uploaded_audio.getvalue(), uploaded_audio.type)
+        if transcribed_audio is not None:
+            # Calls the endpoint to process the question        
+            response = ApiClient.get_question_answer(transcribed_audio['text'])
+            if response is not None:
+                chat_history.add_user_message(transcribed_audio['text'])
+                chat_history.add_ai_message(response['result'])
+                chat_history.add_ai_message(response['observation'])         
 
 
     # If there is a voice recording, transcribe it and send it to the endpoint
     # to process the question.
     if speech:
-        print(speech)
-        if speech.type == "audio/wav":
-            with open(speech.name, "wb") as f:
-                f.write(speech.getvalue())
-            
-            transcribed_audio = recognize_speech_from_file(speech.name)
-            os.remove(speech.name)
-        elif speech.type == "audio/mp3":
-            with open(speech.name, "wb") as f:
-                f.write(speech.getvalue())
-            
-            transcribed_audio = recognize_speech_from_file(speech.name)
-            os.remove(speech.name)
-        
-        # Calls the endpoint to process the question
-        response = requests.get(f"{BASE_URL}/question", params={"question": transcribed_audio})
-        if (response.status_code == 200):
-            llm_answer = response.json()
-            chat_history.add_user_message(transcribed_audio)
-            chat_history.add_ai_message(llm_answer['result'])
-            chat_history.add_ai_message(llm_answer['observation'])
-
+        transcribed_audio = ApiClient.transcribe_audio_file(speech.name, speech.getvalue(), speech.type)
+        if transcribed_audio is not None:
+            # Calls the endpoint to process the question
+            response = ApiClient.get_question_answer(transcribed_audio['text'])
+            if response is not None:
+                chat_history.add_user_message(transcribed_audio['text'])
+                chat_history.add_ai_message(response['result'])
+                chat_history.add_ai_message(response['observation'])
         
     
     if uploaded_image:
         with st.spinner("Processing image..."):
-            files = {'file': (uploaded_image.name, uploaded_image.read(), uploaded_image.type)}
-            response = requests.post(f"{BASE_URL}/classify_pest_file", files=files)
-            if (response.status_code == 200):
-                pest = response.json()
+            container = info_placeholder.container()
+            container.image(uploaded_image, caption="Image uploaded by the user.", width= 600)
+
+            pest = ApiClient.classify_pest_file(uploaded_image.name, uploaded_image.read(), uploaded_image.type)
+            if pest is not None:
+                pest_name_db = pest['pestClassification'].split("(")[0].lower().strip()
+                pest_name_db = pest_name_db.replace(" ", "-")
+
+                # Get registered products for this pest.
+                products = ApiClient.get_registered_products(pest_name_db)
+                if products is not None:
+                    container.dataframe(products, height= 400, width= 800)
+
                 chat_history.add_user_message("The image uploaded by the user.")
                 chat_history.add_ai_message(pest['pestClassification'])
                 chat_history.add_ai_message(pest['result'])
@@ -204,22 +177,30 @@ def main():
         # If the URL toggle is "off", the user input is a text question.
         # The question is sent to the endpoint to process the question.
         if st.session_state.user_question != "":
-            response = requests.get(f"{BASE_URL}/question", params={"question": st.session_state.user_question})
-            if (response.status_code == 200):
-                llm_answer = response.json()
+            response = ApiClient.get_question_answer(st.session_state.user_question)
+            if response is not None:
                 chat_history.add_user_message(st.session_state.user_question)
-                chat_history.add_ai_message(llm_answer['result'])
-                chat_history.add_ai_message(llm_answer['observation'])
+                chat_history.add_ai_message(response['result'])
+                chat_history.add_ai_message(response['observation'])
 
             st.session_state.user_question = ""
         
         # If the URL toggle is "on", the user input is a URL of an image file.
         # The URL is sent to the endpoint to process the image.
-        if st.session_state.user_image_url != "":
-            response = requests.post("http://localhost:5080/classify_pest", params={"url": st.session_state.user_url})
-            if (response.status_code == 200):
-                pest = response.json()
-                chat_history.add_user_message(f"The user indicated the URL: {st.session_state.user_url}")
+        if st.session_state.user_image_url != "":        
+            container = info_placeholder.container()
+            container.image(st.session_state.user_image_url, caption="Image URL indicated by the user.", width= 600)
+            pest = ApiClient.classify_pest_image(st.session_state.user_image_url)
+            if pest is not None:
+                pest_name_db = pest['pestClassification'].split("(")[0].lower().strip()
+                pest_name_db = pest_name_db.replace(" ", "-")
+                
+                # Get registered products for this pest.
+                products = ApiClient.get_registered_products(pest_name_db)
+                if products is not None:
+                    container.dataframe(products, height= 400, width= 800)
+
+                chat_history.add_user_message(f"The user indicated the URL: {st.session_state.user_image_url}")
                 chat_history.add_ai_message(pest['pestClassification'])
                 chat_history.add_ai_message(pest['result'])
                 chat_history.add_ai_message(pest['observation'])
