@@ -13,8 +13,8 @@ from html_templates import get_bot_template, get_user_template, css
 from speech import recognize_speech_from_file
 from api_client import ApiClient
 
-
-with open("config.yaml", "r") as f:
+config_path = os.path.join(os.path.dirname(__file__), "config.yaml")
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 
@@ -48,9 +48,9 @@ def save_chat_history():
     if st.session_state.history != []:
         if st.session_state.session_key == "new_session":
             st.session_state.new_session_key = get_timestamp() + ".json"
-            save_chat_history_json(st.session_state.history, config["chat_history_path"] + st.session_state.new_session_key)
+            save_chat_history_json(st.session_state.history, os.listdir(os.path.join(os.path.dirname(__file__), config["chat_history_path"])) + st.session_state.new_session_key)
         else:
-            save_chat_history_json(st.session_state.history, config["chat_history_path"] + st.session_state.session_key)
+            save_chat_history_json(st.session_state.history, os.listdir(os.path.join(os.path.dirname(__file__), config["chat_history_path"])) + st.session_state.session_key)
 
 
 def main():
@@ -84,7 +84,7 @@ def main():
     st.write(css, unsafe_allow_html=True)
     
     st.sidebar.title("Chat Sessions")
-    chat_sessions = ["new_session"] + os.listdir(config["chat_history_path"])
+    chat_sessions = ["new_session"] + os.listdir(os.path.join(os.path.dirname(__file__), config["chat_history_path"]))
    
     if st.session_state.session_key == "new_session" and st.session_state.new_session_key != None:
         st.session_state.session_index_tracker = st.session_state.new_session_key
@@ -95,7 +95,7 @@ def main():
     st.sidebar.selectbox("Select a chat session", chat_sessions, key="session_key", index=index)
 
     if st.session_state.session_key != "new_session":
-        st.session_state.history = load_chat_history_json(config["chat_history_path"] + st.session_state.session_key)
+        st.session_state.history = load_chat_history_json(os.listdir(os.path.join(os.path.dirname(__file__), config["chat_history_path"])) + st.session_state.session_key)
     else:
         st.session_state.history = []
 
