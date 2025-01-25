@@ -1,6 +1,8 @@
 import requests
+import os
 
-API_HOST = 'http://host.docker.internal:5080'
+#API_HOST = 'http://host.docker.internal:5080'
+API_HOST = valor = os.getenv('services__backend__http__0')
 
 class ApiClient:
     @staticmethod
