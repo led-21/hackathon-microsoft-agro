@@ -1,6 +1,6 @@
 import requests
 
-API_HOST = 'http://localhost:5080'
+API_HOST = 'http://host.docker.internal:5080'
 
 class ApiClient:
     @staticmethod
@@ -14,7 +14,7 @@ class ApiClient:
         Returns:
             The response from the API if all OK or None otherwise.
         """
-        response = requests.post("http://localhost:5080/classify_pest", params={"url": image_url})
+        response = requests.post("http://localhost:5080/classify_pest", params={"url": image_url}, verify=False, cert=False)
         return response.json() if response.status_code == 200 else None
     
     @staticmethod
@@ -31,7 +31,7 @@ class ApiClient:
             The response from the API if all OK or None otherwise.
         """
         files = {'file': (file_name, file_contents, file_type)}
-        response = requests.post(f"{API_HOST}/classify_pest_file", files=files)
+        response = requests.post(f"{API_HOST}/classify_pest_file", files=files, verify=False, cert=False)
         return response.json() if response.status_code == 200 else None
     
     @staticmethod
@@ -45,7 +45,7 @@ class ApiClient:
         Returns:
             The response from the API if all OK or None otherwise.
         """
-        response = requests.get(f'{API_HOST}/question/', params= {'question': question}, verify= False)
+        response = requests.get(f'{API_HOST}/question/', params= {'question': question}, verify=False, cert= False)
         return response.json() if response.status_code == 200 else None
     
     @staticmethod
@@ -59,7 +59,7 @@ class ApiClient:
         Returns:
             The response from the API if all OK or None otherwise.
         """
-        response = requests.get(f'{API_HOST}/get_registered_products', params= {'pest': pest_name}, verify= False)
+        response = requests.get(f'{API_HOST}/get_registered_products', params= {'pest': pest_name}, verify=False, cert=False)
         return response.json() if response.status_code == 200 else None
 
     @staticmethod
@@ -87,5 +87,5 @@ class ApiClient:
             The response from the API if all OK or None otherwise
         """
         files = {'file': (file_name, file_contents, file_type)}
-        response = requests.post(f"{API_HOST}/speech_to_text", files=files)
+        response = requests.post(f"{API_HOST}/speech_to_text", files=files, verify=False, cert=False)
         return response.json() if response.status_code == 200 else None

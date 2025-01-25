@@ -11,6 +11,8 @@ using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Adicionando a URL do Key Vault ao arquivo de configuração
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 

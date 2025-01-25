@@ -11,5 +11,4 @@ pypdfium2
 chromadb
 librosa
 pyyaml
-torch
 protobuf==3.20.3
