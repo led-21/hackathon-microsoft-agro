@@ -2,6 +2,8 @@
 using hackaton_microsoft_agro.Interface;
 using hackaton_microsoft_agro.Services;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using System.IO;
 
 namespace hackaton_microsoft_agro.Endpoints
@@ -10,6 +12,12 @@ namespace hackaton_microsoft_agro.Endpoints
     {
         public static void AddMyEndpoints(this WebApplication app)
         {
+
+            app.MapGet("/", async context =>
+            {
+                context.Response.Redirect("/swagger");
+            });
+
             app.MapGet("/health", () => new Dictionary<string, string> { ["status"] = "up" }).WithName("HealthCheck");
 
             app.MapPost("/classify_pest", async (string url, HttpClient client, IOrchestrator orchestrator) =>
