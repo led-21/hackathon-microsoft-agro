@@ -1,5 +1,10 @@
 import requests
 import os
+import logging
+
+# Configure logger
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 #API_HOST = 'http://host.docker.internal:5080'
 #API_HOST = valor = os.getenv('services__backend__http__0')
@@ -17,8 +22,14 @@ class ApiClient:
         Returns:
             The response from the API if all OK or None otherwise.
         """
-        response = requests.post("http://localhost:5080/classify_pest", params={"url": image_url}, verify=True)
-        return response.json() if response.status_code == 200 else None
+        try: 
+            response = requests.post(f"{API_HOST}/classify_pest", params={"url": image_url}, verify=True) 
+            response.raise_for_status() 
+            return response.json()
+        # Raise an exception for HTTP error responsesreturn response.json() 
+        except requests.exceptions.RequestException as e: 
+            logger.error(f"Error classifying pest image: {e}") 
+            return None
     
     @staticmethod
     def classify_pest_file(file_name, file_contents, file_type):
